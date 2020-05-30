@@ -50,12 +50,19 @@ function getArticlesList(articles) {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
     let journalName =
       item.journalName !== null ? item.journalName.replace(/[”“"]/g, "") : ""
+    let articleType =
+      item.activitySubtype === 1
+        ? "Article"
+        : item.activitySubtype === 5
+        ? "Book Review"
+        : "Other"
+
     return [
       `${item.digitalObjectIdentifier}`,
       `"${title}"`,
       `"${journalName}"`,
       `${item.journalYear}`,
-      `Article`,
+      `${articleType}`,
     ]
   })
 
