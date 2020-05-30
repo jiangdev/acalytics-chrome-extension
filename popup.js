@@ -19,32 +19,6 @@ function convertToCSV(items) {
   return lines
 }
 
-function exportCSVFile(headers, items, fileTitle) {
-  console.log("items: ", items)
-  // Convert Object to JSON
-  if (headers) {
-    items.unshift(headers)
-  }
-  var jsonObject = JSON.stringify(items)
-  var csv = this.convertToCSV(items)
-
-  var exportedFilenmae = fileTitle + ".csv" || "export.csv"
-
-  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-  let link = document.createElement("a")
-  if (link.download !== undefined) {
-    // feature detection
-    // Browsers that support HTML5 download attribute
-    let url = URL.createObjectURL(blob)
-    link.setAttribute("href", url)
-    link.setAttribute("download", exportedFilenmae)
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-}
-
 function getArticlesList(articles) {
   let formattedArticles = articles.map((item) => {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
@@ -57,13 +31,13 @@ function getArticlesList(articles) {
         ? "Book Review"
         : "Other"
 
-    return [
-      `${item.digitalObjectIdentifier}`,
-      `"${title}"`,
-      `"${journalName}"`,
-      `${item.journalYear}`,
-      `${articleType}`,
-    ]
+    return {
+      DOI: `${item.digitalObjectIdentifier}`,
+      Title: `${title}`,
+      Journal: `${journalName}`,
+      Year: `${item.journalYear}`,
+      Type: `${articleType}`,
+    }
   })
 
   return formattedArticles
@@ -72,7 +46,13 @@ function getArticlesList(articles) {
 function getBooksList(books) {
   let formattedBooks = books.map((item) => {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
-    return [``, `"${title}"`, ``, `${item.activityYear}`, `Book`]
+    return {
+      DOI: ``,
+      Title: `${title}`,
+      Journal: ``,
+      Year: `${item.activityYear}`,
+      Type: `Book`,
+    }
   })
 
   return formattedBooks
@@ -81,7 +61,13 @@ function getBooksList(books) {
 function getBookChapters(bookChapters) {
   let formattedBookChapters = bookChapters.map((item) => {
     let title = item.name !== null ? item.name.replace(/[”“"]/g, "") : ""
-    return [``, `"${title}"`, ``, `${item.activityYear}`, `BookChapter`]
+    return {
+      DOI: ``,
+      Title: `${title}`,
+      Journal: ``,
+      Year: `${item.activityYear}`,
+      Type: `Book Chapter`,
+    }
   })
 
   return formattedBookChapters
@@ -90,20 +76,20 @@ function getBookChapters(bookChapters) {
 function getConferenceProceedings(conferenceProceedings) {
   let formattedConferenceProceedings = conferenceProceedings.map((item) => {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
-    return [
-      ``,
-      `"${title}"`,
-      ``,
-      `${item.journalYear}`,
-      `ConferenceProceedings`,
-    ]
+    return {
+      DOI: ``,
+      Title: `${title}`,
+      Journal: ``,
+      Year: `${item.journalYear}`,
+      Type: `Conference Proceedings`,
+    }
   })
 
   return formattedConferenceProceedings
 }
 
 function createCSVFromResult(result) {
-  let headers = ["DOI", "Title", "Journal", "Year", "Type"]
+  let header = ["DOI", "Title", "Journal", "Year", "Type"]
 
   let items = [
     ...getArticlesList(result.articles),
@@ -112,10 +98,12 @@ function createCSVFromResult(result) {
     ...getConferenceProceedings(result.conferenceProceedings),
   ]
 
-  exportCSVFile(
-    headers,
-    items,
-    `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}`
+  var wb = XLSX.utils.book_new()
+  var ws = XLSX.utils.json_to_sheet(items, { header })
+  XLSX.utils.book_append_sheet(wb, ws, "test")
+  XLSX.writeFile(
+    wb,
+    `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}.xlsx`
   )
 }
 
