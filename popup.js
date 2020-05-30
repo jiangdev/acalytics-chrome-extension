@@ -9,102 +9,60 @@ function httpGetAsync(theUrl, callback) {
   xmlHttp.send(null)
 }
 
-function convertToCSV(objArray) {
-  var array = typeof objArray != "object" ? JSON.parse(objArray) : objArray
-  var str = ""
+function convertToCSV(items) {
+  var lines = ""
+  items.forEach((element) => {
+    let line = element.join(",")
+    lines += line + "\r\n"
+  })
 
-  for (var i = 0; i < array.length; i++) {
-    var line = ""
-    for (var index in array[i]) {
-      if (line != "") line += ","
-
-      line += array[i][index]
-    }
-
-    str += line + "\r\n"
-  }
-
-  return str
+  return lines
 }
 
 function exportCSVFile(headers, items, fileTitle) {
+  // Convert Object to JSON
   if (headers) {
     items.unshift(headers)
   }
-
-  // Convert Object to JSON
   var jsonObject = JSON.stringify(items)
-
-  var csv = this.convertToCSV(jsonObject)
+  var csv = this.convertToCSV(items)
 
   var exportedFilenmae = fileTitle + ".csv" || "export.csv"
 
-  var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-  if (navigator.msSaveBlob) {
-    // IE 10+
-    navigator.msSaveBlob(blob, exportedFilenmae)
-  } else {
-    var link = document.createElement("a")
-    if (link.download !== undefined) {
-      // feature detection
-      // Browsers that support HTML5 download attribute
-      var url = URL.createObjectURL(blob)
-      link.setAttribute("href", url)
-      link.setAttribute("download", exportedFilenmae)
-      link.style.visibility = "hidden"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
+  let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  let link = document.createElement("a")
+  if (link.download !== undefined) {
+    // feature detection
+    // Browsers that support HTML5 download attribute
+    let url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", exportedFilenmae)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 }
 
-var headers = {
-  model: "Phone Model".replace(/,/g, ""), // remove commas to avoid errors
-  chargers: "Chargers",
-  cases: "Cases",
-  earphones: "Earphones",
-}
+function createCSVFromResult(result) {
+  let headers = ["Year", "Type", "Title", "Journal", "DOI", "Scholars"]
 
-itemsNotFormatted = [
-  {
-    model: "Samsung S7",
-    chargers: "55",
-    cases: "56",
-    earphones: "57",
-    scratched: "2",
-  },
-  {
-    model: "Pixel XL",
-    chargers: "77",
-    cases: "78",
-    earphones: "79",
-    scratched: "4",
-  },
-  {
-    model: "iPhone 7",
-    chargers: "88",
-    cases: "89",
-    earphones: "90",
-    scratched: "6",
-  },
-]
-
-var itemsFormatted = []
-
-// format the data
-itemsNotFormatted.forEach((item) => {
-  itemsFormatted.push({
-    model: item.model.replace(/,/g, ""), // remove commas to avoid errors,
-    chargers: item.chargers,
-    cases: item.cases,
-    earphones: item.earphones,
+  let results = result.map((item) => {
+    let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
+    let journalName =
+      item.journalName !== null ? item.journalName.replace(/[”“"]/g, "") : ""
+    return [
+      `${item.journalYear}`,
+      `Article`,
+      `"${title}"`,
+      `${journalName}`,
+      `${item.digitalObjectIdentifier}`,
+      `scholar`,
+    ]
   })
-})
 
-var fileTitle = "orders" // or 'my-unique-title'
-
-// exportCSVFile(headers, itemsFormatted, fileTitle) // call the exportCSVFile() function to process the JSON and trigger the download
+  exportCSVFile(headers, results, "Article")
+}
 
 chrome.storage.sync.get("color", function (data) {
   changeColor.style.backgroundColor = data.color
@@ -112,17 +70,18 @@ chrome.storage.sync.get("color", function (data) {
 })
 
 changeColor.onclick = function (element) {
-  console.log("hello world")
-  exportCSVFile(headers, itemsFormatted, fileTitle)
-  httpGetAsync(
-    "https://missouri.discovery.academicanalytics.com/api/people/333186",
-    (result) => {
-      console.log("result", result)
-    }
-  )
   let color = element.target.value
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    console.log("tabs[0]: ", tabs[0].url)
+    let urlParts = tabs[0].url.split("/")
+    var professorIDIndex = urlParts.findIndex((part) => part === "stack") + 1
+
+    httpGetAsync(
+      `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`,
+      (result) => {
+        createCSVFromResult(JSON.parse(result).articles)
+      }
+    )
+
     chrome.tabs.executeScript(tabs[0].id, {
       code: 'document.body.style.backgroundColor = "' + color + '";',
     })
