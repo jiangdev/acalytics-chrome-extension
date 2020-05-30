@@ -71,15 +71,45 @@ function getBooksList(books) {
   return formattedBooks
 }
 
+function getBookChapters(bookChapters) {
+  let formattedBookChapters = bookChapters.map((item) => {
+    let title = item.name !== null ? item.name.replace(/[”“"]/g, "") : ""
+    return [``, `"${title}"`, ``, `${item.activityYear}`, `BookChapter`]
+  })
+
+  return formattedBookChapters
+}
+
+function getConferenceProceedings(conferenceProceedings) {
+  let formattedConferenceProceedings = conferenceProceedings.map((item) => {
+    let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
+    return [
+      ``,
+      `"${title}"`,
+      ``,
+      `${item.journalYear}`,
+      `ConferenceProceedings`,
+    ]
+  })
+
+  return formattedConferenceProceedings
+}
+
 function createCSVFromResult(result) {
   let headers = ["DOI", "Title", "Journal", "Year", "Type"]
 
   let items = [
     ...getArticlesList(result.articles),
     ...getBooksList(result.books),
+    ...getBookChapters(result.bookChapters),
+    ...getConferenceProceedings(result.conferenceProceedings),
   ]
 
-  exportCSVFile(headers, items, "Article")
+  exportCSVFile(
+    headers,
+    items,
+    `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}`
+  )
 }
 
 chrome.storage.sync.get("color", function (data) {
