@@ -88,6 +88,19 @@ function getConferenceProceedings(conferenceProceedings) {
   return formattedConferenceProceedings
 }
 
+function compareDates(a, b) {
+  const yearA = a.Year
+  const yearB = b.Year
+
+  let comparison = 0
+  if (yearA > yearB) {
+    comparison = 1
+  } else if (yearA < yearB) {
+    comparison = -1
+  }
+  return comparison
+}
+
 function createCSVFromResult(result) {
   let header = ["DOI", "Title", "Journal", "Year", "Type"]
 
@@ -97,6 +110,8 @@ function createCSVFromResult(result) {
     ...getBookChapters(result.bookChapters),
     ...getConferenceProceedings(result.conferenceProceedings),
   ]
+
+  items.sort(compareDates)
 
   var wb = XLSX.utils.book_new()
   var ws = XLSX.utils.json_to_sheet(items, { header })
