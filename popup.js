@@ -20,6 +20,7 @@ function convertToCSV(items) {
 }
 
 function exportCSVFile(headers, items, fileTitle) {
+  console.log("items: ", items)
   // Convert Object to JSON
   if (headers) {
     items.unshift(headers)
@@ -44,24 +45,41 @@ function exportCSVFile(headers, items, fileTitle) {
   }
 }
 
-function createCSVFromResult(result) {
-  let headers = ["Year", "Type", "Title", "Journal", "DOI", "Scholars"]
-
-  let results = result.map((item) => {
+function getArticlesList(articles) {
+  let formattedArticles = articles.map((item) => {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
     let journalName =
       item.journalName !== null ? item.journalName.replace(/[”“"]/g, "") : ""
     return [
-      `${item.journalYear}`,
-      `Article`,
+      `${item.digitalObjectIdentifier}`,
       `"${title}"`,
       `${journalName}`,
-      `${item.digitalObjectIdentifier}`,
-      `scholar`,
+      `${item.journalYear}`,
+      `Article`,
     ]
   })
 
-  exportCSVFile(headers, results, "Article")
+  return formattedArticles
+}
+
+function getBooksList(books) {
+  let formattedBooks = books.map((item) => {
+    let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
+    return [``, `"${title}"`, ``, `${item.activityYear}`, `Book`]
+  })
+
+  return formattedBooks
+}
+
+function createCSVFromResult(result) {
+  let headers = ["DOI", "Title", "Journal", "Year", "Type"]
+
+  let items = [
+    ...getArticlesList(result.articles),
+    ...getBooksList(result.books),
+  ]
+
+  exportCSVFile(headers, items, "Article")
 }
 
 chrome.storage.sync.get("color", function (data) {
@@ -78,7 +96,7 @@ changeColor.onclick = function (element) {
     httpGetAsync(
       `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`,
       (result) => {
-        createCSVFromResult(JSON.parse(result).articles)
+        createCSVFromResult(JSON.parse(result))
       }
     )
 
