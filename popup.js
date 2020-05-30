@@ -53,7 +53,7 @@ function getArticlesList(articles) {
     return [
       `${item.digitalObjectIdentifier}`,
       `"${title}"`,
-      `${journalName}`,
+      `"${journalName}"`,
       `${item.journalYear}`,
       `Article`,
     ]
