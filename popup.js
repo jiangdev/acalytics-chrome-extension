@@ -173,14 +173,14 @@ function createCSVFromResult(result) {
           "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
           "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
           "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
-          "Post-Print Embargo": "",
+          "Post-Print Embargo": `${response.authoritative_permission.application.can_archive_conditions.postprint_embargo_end_calculated}`,
           "Licence(s) Allowed": `${response.authoritative_permission.application.can_archive_conditions.licenses_required}`,
           "Deposit Statement": `${response.authoritative_permission.application.can_archive_conditions.deposit_statement_required_calculated}`,
           "Policy used": `${response.authoritative_permission.issuer.permission_type}`,
           "Issuer Name": `${response.authoritative_permission.issuer.name}`,
           "Policy Full Text": `${response.authoritative_permission.meta.policy_full_text_archived}`,
           "Record Last Updated": `${response.authoritative_permission.meta.record_last_updated}`,
-          "Policy monitoring": `${response.authoritative_permission.application.can_archive_conditions.postprint_embargo_end_calculated}`,
+          "Policy monitoring": `${response.authoritative_permission.meta.monitoring_type}`,
         }
       }
       return {}
