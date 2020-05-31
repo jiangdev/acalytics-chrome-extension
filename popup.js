@@ -1,12 +1,35 @@
 let changeColor = document.getElementById("changeColor")
-function httpGetAsync(theUrl, callback) {
-  var xmlHttp = new XMLHttpRequest()
-  xmlHttp.onreadystatechange = function () {
-    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-      callback(xmlHttp.responseText)
-  }
-  xmlHttp.open("GET", theUrl, true) // true for asynchronous
-  xmlHttp.send(null)
+
+var makeRequest = function (url, method) {
+  // Create the XHR request
+  var request = new XMLHttpRequest()
+
+  // Return it as a Promise
+  return new Promise(function (resolve, reject) {
+    // Setup our listener to process compeleted requests
+    request.onreadystatechange = function () {
+      // Only run if the request is complete
+      if (request.readyState !== 4) return
+
+      // Process the response
+      if (request.status >= 200 && request.status < 300) {
+        // If successful
+        resolve(request)
+      } else {
+        // If failed
+        reject({
+          status: request.status,
+          statusText: request.statusText,
+        })
+      }
+    }
+
+    // Setup our HTTP request
+    request.open(method || "GET", url, true)
+
+    // Send the request
+    request.send()
+  })
 }
 
 function convertToCSV(items) {
@@ -111,6 +134,16 @@ function createCSVFromResult(result) {
     ...getConferenceProceedings(result.conferenceProceedings),
   ]
 
+  let checkItems = items.filter((item) => {
+    return item.DOI !== ""
+  })
+
+  let doiPromises = checkItems.map((item) => {
+    return makeRequest(`https://permissions.shareyourpaper.org/doi/${item.DOI}`)
+  })
+
+  Promise.all(doiPromises).then((values) => {})
+
   items.sort(compareDates)
 
   var wb = XLSX.utils.book_new()
@@ -133,12 +166,12 @@ changeColor.onclick = function (element) {
     let urlParts = tabs[0].url.split("/")
     var professorIDIndex = urlParts.findIndex((part) => part === "stack") + 1
 
-    httpGetAsync(
-      `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`,
-      (result) => {
-        createCSVFromResult(JSON.parse(result))
-      }
-    )
+    var req = makeRequest(
+      `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`
+    ).then((result) => {
+      console.log("result: ", result.response)
+      createCSVFromResult(JSON.parse(result.response))
+    })
 
     chrome.tabs.executeScript(tabs[0].id, {
       code: 'document.body.style.backgroundColor = "' + color + '";',
