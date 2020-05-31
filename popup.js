@@ -150,6 +150,7 @@ function createCSVFromResult(result) {
 
   Promise.all(doiPromises).then((values) => {
     let checkerHeaders = [
+      "DOI",
       "You Can Archive",
       "Version(s) archivable",
       "Archiving Locations Allowed",
@@ -168,6 +169,7 @@ function createCSVFromResult(result) {
 
       if (response.authoritative_permission) {
         return {
+          DOI: `${response.authoritative_permission.application.can_archive_conditions.doi}`,
           "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
           "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
           "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
