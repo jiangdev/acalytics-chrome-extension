@@ -116,9 +116,9 @@ function compareDates(a, b) {
   const yearB = b.Year
 
   let comparison = 0
-  if (yearA > yearB) {
+  if (yearA < yearB) {
     comparison = 1
-  } else if (yearA < yearB) {
+  } else if (yearA > yearB) {
     comparison = -1
   }
   return comparison
@@ -134,6 +134,12 @@ function createCSVFromResult(result) {
     ...getConferenceProceedings(result.conferenceProceedings),
   ]
 
+  items.sort(compareDates)
+
+  var wb = XLSX.utils.book_new()
+  var wsOne = XLSX.utils.json_to_sheet(items, { header })
+  XLSX.utils.book_append_sheet(wb, wsOne, "test")
+
   let checkItems = items.filter((item) => {
     return item.DOI !== ""
   })
@@ -142,17 +148,50 @@ function createCSVFromResult(result) {
     return makeRequest(`https://permissions.shareyourpaper.org/doi/${item.DOI}`)
   })
 
-  Promise.all(doiPromises).then((values) => {})
+  Promise.all(doiPromises).then((values) => {
+    let checkerHeaders = [
+      "You Can Archive",
+      "Version(s) archivable",
+      "Archiving Locations Allowed",
+      "Post-Print Embargo",
+      "Licence(s) Allowed",
+      "Deposit Statement",
+      "Policy used",
+      "Issuer Name",
+      "Policy Full Text",
+      "Record Last Updated",
+      "Policy monitoring",
+    ]
 
-  items.sort(compareDates)
+    let checkItemsList = values.map((value) => {
+      let response = JSON.parse(value.response)
 
-  var wb = XLSX.utils.book_new()
-  var ws = XLSX.utils.json_to_sheet(items, { header })
-  XLSX.utils.book_append_sheet(wb, ws, "test")
-  XLSX.writeFile(
-    wb,
-    `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}.xlsx`
-  )
+      if (response.authoritative_permission) {
+        return {
+          "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
+          "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
+          "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
+          "Post-Print Embargo": "",
+          "Licence(s) Allowed": `${response.authoritative_permission.application.can_archive_conditions.licenses_required}`,
+          "Deposit Statement": `${response.authoritative_permission.application.can_archive_conditions.deposit_statement_required_calculated}`,
+          "Policy used": `${response.authoritative_permission.issuer.permission_type}`,
+          "Issuer Name": `${response.authoritative_permission.issuer.name}`,
+          "Policy Full Text": `${response.authoritative_permission.meta.policy_full_text_archived}`,
+          "Record Last Updated": `${response.authoritative_permission.meta.record_last_updated}`,
+          "Policy monitoring": `${response.authoritative_permission.application.can_archive_conditions.postprint_embargo_end_calculated}`,
+        }
+      }
+      return {}
+    })
+
+    var wsTwo = XLSX.utils.json_to_sheet(checkItemsList, { checkerHeaders })
+    XLSX.utils.book_append_sheet(wb, wsTwo, "test2")
+
+    XLSX.writeFile(
+      wb,
+      `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}.xlsx`
+    )
+  })
 }
 
 chrome.storage.sync.get("color", function (data) {
@@ -169,7 +208,6 @@ changeColor.onclick = function (element) {
     var req = makeRequest(
       `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`
     ).then((result) => {
-      console.log("result: ", result.response)
       createCSVFromResult(JSON.parse(result.response))
     })
 
