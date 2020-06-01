@@ -1,5 +1,9 @@
-let changeColor = document.getElementById("changeColor")
+let downloadButton = document.getElementById("downloadButton")
+let spinnerContainer = document.getElementById("spinnerContainer")
+let loadingMessage1 = document.getElementById("loadingMessage1")
+let loadingMessage2 = document.getElementById("loadingMessage2")
 
+let showDiv = document.getElementById("showDiv")
 var makeRequest = function (url, method) {
   // Create the XHR request
   var request = new XMLHttpRequest()
@@ -148,6 +152,9 @@ function createCSVFromResult(result) {
     return makeRequest(`https://permissions.shareyourpaper.org/doi/${item.DOI}`)
   })
 
+  loadingMessage1.style.display = "none"
+  loadingMessage2.style.display = "block"
+
   Promise.all(doiPromises).then((values) => {
     let checkerHeaders = [
       "DOI",
@@ -193,11 +200,19 @@ function createCSVFromResult(result) {
       wb,
       `${result.firstName.toLowerCase()}-${result.lastName.toLowerCase()}.xlsx`
     )
+    downloadButton.style.display = "block"
+    spinnerContainer.style.display = "none"
+    loadingMessage1.style.display = "none"
+    loadingMessage2.style.display = "none"
   })
 }
 
-changeColor.onclick = function (element) {
+downloadButton.onclick = function (element) {
   let color = element.target.value
+  downloadButton.style.display = "none"
+  spinnerContainer.style.display = "block"
+  loadingMessage1.style.display = "block"
+
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     let urlParts = tabs[0].url.split("/")
     var professorIDIndex = urlParts.findIndex((part) => part === "stack") + 1

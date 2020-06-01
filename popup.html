@@ -5,7 +5,28 @@
     <script lang="javascript" src="xlsx.full.min.js"></script>
   </head>
   <body>
-    <button id="changeColor">Download XLSX</button>
-    <script src="popup.js"></script>
+    <div class="popupContainer">
+      <h2>Acalytics Exporter</h2>
+      <p>
+
+      </p>
+      <button class="downloadButton" id="downloadButton">Download Scholar Profile</button>
+      <h4 id="loadingMessage1" class="loadingMessage1">Retrieving profile..</h4>
+      <h4 id="loadingMessage2" class="loadingMessage2">Checking publication policies..</h4>
+      <div id="spinnerContainer" class="spinnerContainer">
+        <div id="spinner" class="sk-chase">
+          <div class="sk-chase-dot"></div>
+          <div class="sk-chase-dot"></div>
+          <div class="sk-chase-dot"></div>
+          <div class="sk-chase-dot"></div>
+          <div class="sk-chase-dot"></div>
+          <div class="sk-chase-dot"></div>
+        </div>
+      </div>
+      <script src="popup.js"></script>
+      <!-- <div id="myDIV">
+        This is my DIV element.
+      </div> -->
+    </div>
   </body>
 </html>
