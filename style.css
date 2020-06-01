@@ -1,11 +1,14 @@
 .downloadButton {
   height: 3.25rem;
-  width: 100%;
   background-color: #007BFE;
   color: white;
   border: 1px solid transparent;
   border-radius: .25rem;
   margin-top: .6rem;
+  width: 85%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .downloadButton:hover {
