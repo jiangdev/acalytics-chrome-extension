@@ -142,11 +142,11 @@ function createCSVFromResult(result) {
 
   var wb = XLSX.utils.book_new()
   var wsOne = XLSX.utils.json_to_sheet(items, { header })
-  XLSX.utils.book_append_sheet(
-    wb,
-    wsOne,
-    `Discovery Works of ${result.firstName} ${result.lastName}`
+  let wsOneName = `Discovery Works of ${result.firstName} ${result.lastName}`.substring(
+    0,
+    31
   )
+  XLSX.utils.book_append_sheet(wb, wsOne, wsOneName)
 
   let checkItems = items.filter((item) => {
     return item.DOI !== ""
@@ -198,11 +198,11 @@ function createCSVFromResult(result) {
     })
 
     var wsTwo = XLSX.utils.json_to_sheet(checkItemsList, { checkerHeaders })
-    XLSX.utils.book_append_sheet(
-      wb,
-      wsTwo,
-      `OA Checked Works of ${result.firstName} ${result.lastName}`
+    let wsTwoName = `OA Checked Works of ${result.firstName} ${result.lastName}`.substring(
+      0,
+      31
     )
+    XLSX.utils.book_append_sheet(wb, wsTwo, wsTwoName)
 
     XLSX.writeFile(
       wb,
