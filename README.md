@@ -4,7 +4,8 @@ This is a friendly tool to help you retrieve information about a scholar's profi
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for use in your chrome browser.
+https://www.youtube.com/watch?v=ceLwrw20gc0&fbclid=IwAR0wtQ9_Ow9GxdQbi9Cejj-l0U2MGFNcNvK8dQj7Aw9IMwtitGq4S4k4RfA
 
 
 ## License
