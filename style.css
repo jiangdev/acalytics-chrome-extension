@@ -11,6 +11,10 @@
   transform: translateX(-50%);
 }
 
+.headerText {
+  text-align: center;
+}
+
 .downloadButton:hover {
   cursor: pointer;
   background-color: #0161CC;

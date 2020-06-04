@@ -162,6 +162,7 @@ function createCSVFromResult(result) {
   Promise.all(doiPromises).then((values) => {
     let checkerHeaders = [
       "DOI",
+      "Title",
       "You Can Archive",
       "Version(s) archivable",
       "Archiving Locations Allowed",
@@ -175,12 +176,20 @@ function createCSVFromResult(result) {
       "Policy monitoring",
     ]
 
-    let checkItemsList = values.map((value) => {
+    let checkItemsList = values.map((value, index) => {
       let response = JSON.parse(value.response)
+      let articleTitle = checkItems[index].Title
+      let DOI = checkItems[index].DOI
 
       if (response.authoritative_permission) {
+        let articleObject = checkItems.find(
+          (checkItem) =>
+            checkItem.DOI.toUpperCase() ===
+            response.authoritative_permission.application.can_archive_conditions.doi.toUpperCase()
+        )
         return {
           DOI: `${response.authoritative_permission.application.can_archive_conditions.doi}`,
+          Title: articleTitle,
           "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
           "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
           "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
@@ -194,7 +203,7 @@ function createCSVFromResult(result) {
           "Policy monitoring": `${response.authoritative_permission.meta.monitoring_type}`,
         }
       }
-      return {}
+      return { Title: articleTitle, DOI }
     })
 
     var wsTwo = XLSX.utils.json_to_sheet(checkItemsList, { checkerHeaders })
