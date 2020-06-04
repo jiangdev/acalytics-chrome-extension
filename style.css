@@ -17,6 +17,10 @@
   transition: all .5s;
 }
 
+.appTitle {
+  text-align: center;
+}
+
 .popupContainer {
   height: 12rem;
   width: 15rem;
