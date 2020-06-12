@@ -33,6 +33,8 @@ var makeRequest = function (url, method) {
 
     // Send the request
     request.send()
+  }).catch((error) => {
+    console.log("erawr", error)
   })
 }
 
@@ -177,33 +179,37 @@ function createCSVFromResult(result) {
     ]
 
     let checkItemsList = values.map((value, index) => {
-      let response = JSON.parse(value.response)
       let articleTitle = checkItems[index].Title
       let DOI = checkItems[index].DOI
+      if (value) {
+        let response = JSON.parse(value.response)
 
-      if (response.authoritative_permission) {
-        let articleObject = checkItems.find(
-          (checkItem) =>
-            checkItem.DOI.toUpperCase() ===
-            response.authoritative_permission.application.can_archive_conditions.doi.toUpperCase()
-        )
-        return {
-          DOI: `${response.authoritative_permission.application.can_archive_conditions.doi}`,
-          Title: articleTitle,
-          "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
-          "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
-          "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
-          "Post-Print Embargo": `${response.authoritative_permission.application.can_archive_conditions.postprint_embargo_end_calculated}`,
-          "Licence(s) Allowed": `${response.authoritative_permission.application.can_archive_conditions.licenses_required}`,
-          "Deposit Statement": `${response.authoritative_permission.application.can_archive_conditions.deposit_statement_required_calculated}`,
-          "Policy used": `${response.authoritative_permission.issuer.permission_type}`,
-          "Issuer Name": `${response.authoritative_permission.issuer.name}`,
-          "Policy Full Text": `${response.authoritative_permission.meta.policy_full_text_archived}`,
-          "Record Last Updated": `${response.authoritative_permission.meta.record_last_updated}`,
-          "Policy monitoring": `${response.authoritative_permission.meta.monitoring_type}`,
+        if (response.authoritative_permission) {
+          let articleObject = checkItems.find(
+            (checkItem) =>
+              checkItem.DOI.toUpperCase() ===
+              response.authoritative_permission.application.can_archive_conditions.doi.toUpperCase()
+          )
+          return {
+            DOI: `${response.authoritative_permission.application.can_archive_conditions.doi}`,
+            Title: articleTitle,
+            "You Can Archive": `${response.authoritative_permission.application.can_archive}`,
+            "Version(s) archivable": `${response.authoritative_permission.application.can_archive_conditions.archiving_locations_allowed}`,
+            "Archiving Locations Allowed": `${response.authoritative_permission.application.can_archive_conditions.versions_archivable}`,
+            "Post-Print Embargo": `${response.authoritative_permission.application.can_archive_conditions.postprint_embargo_end_calculated}`,
+            "Licence(s) Allowed": `${response.authoritative_permission.application.can_archive_conditions.licenses_required}`,
+            "Deposit Statement": `${response.authoritative_permission.application.can_archive_conditions.deposit_statement_required_calculated}`,
+            "Policy used": `${response.authoritative_permission.issuer.permission_type}`,
+            "Issuer Name": `${response.authoritative_permission.issuer.name}`,
+            "Policy Full Text": `${response.authoritative_permission.meta.policy_full_text_archived}`,
+            "Record Last Updated": `${response.authoritative_permission.meta.record_last_updated}`,
+            "Policy monitoring": `${response.authoritative_permission.meta.monitoring_type}`,
+          }
         }
+        return { Title: articleTitle, DOI }
+      } else {
+        return { Title: articleTitle, DOI }
       }
-      return { Title: articleTitle, DOI }
     })
 
     var wsTwo = XLSX.utils.json_to_sheet(checkItemsList, { checkerHeaders })
