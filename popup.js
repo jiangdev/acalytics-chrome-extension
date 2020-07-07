@@ -62,6 +62,7 @@ function getArticlesList(articles) {
 
     return {
       DOI: `${item.digitalObjectIdentifier}`,
+      ISBN: ``,
       Title: `${title}`,
       Journal: `${journalName}`,
       Year: `${item.journalYear}`,
@@ -77,6 +78,7 @@ function getBooksList(books) {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
     return {
       DOI: ``,
+      ISBN: `${item.isbn}`,
       Title: `${title}`,
       Journal: ``,
       Year: `${item.activityYear}`,
@@ -92,6 +94,7 @@ function getBookChapters(bookChapters) {
     let title = item.name !== null ? item.name.replace(/[”“"]/g, "") : ""
     return {
       DOI: ``,
+      ISBN: `${item.isbn}`,
       Title: `${title}`,
       Journal: ``,
       Year: `${item.activityYear}`,
@@ -107,6 +110,7 @@ function getConferenceProceedings(conferenceProceedings) {
     let title = item.title !== null ? item.title.replace(/[”“"]/g, "") : ""
     return {
       DOI: ``,
+      ISBN: ``,
       Title: `${title}`,
       Journal: ``,
       Year: `${item.journalYear}`,
@@ -131,7 +135,7 @@ function compareDates(a, b) {
 }
 
 function createCSVFromResult(result) {
-  let header = ["DOI", "Title", "Journal", "Year", "Type"]
+  let header = ["DOI", "ISBN", "Title", "Journal", "Year", "Type"]
 
   let items = [
     ...getArticlesList(result.articles),
