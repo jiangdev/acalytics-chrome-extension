@@ -245,7 +245,7 @@ downloadButton.onclick = function (element) {
     var professorIDIndex = urlParts.findIndex((part) => part === "stack") + 1
 
     var req = makeRequest(
-      `https://missouri.discovery.academicanalytics.com/api/people/${urlParts[professorIDIndex]}`
+      `https://scholars.umsystem.edu/api/people/${urlParts[professorIDIndex]}`
     ).then((result) => {
       createCSVFromResult(JSON.parse(result.response))
     })
