@@ -5,9 +5,8 @@ chrome.runtime.onInstalled.addListener(function () {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
             pageUrl: {
-              pathContains: "i",
               pathContains: "scholar/stack",
-              hostEquals: "missouri.discovery.academicanalytics.com",
+              hostEquals: "scholars.umsystem.edu",
             },
           }),
         ],
